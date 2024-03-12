@@ -1,0 +1,396 @@
+Program.Sub.ScreenSU.Start
+Gui.F_RTSelection..Create
+Gui.F_RTSelection..Caption("Router Labor Time Update")
+Gui.F_RTSelection..Size(4965,5400)
+Gui.F_RTSelection..MinX(4965)
+Gui.F_RTSelection..MinY(5400)
+Gui.F_RTSelection..Position(0,0)
+Gui.F_RTSelection..BackColor(-2147483633)
+Gui.F_RTSelection..MousePointer(0)
+Gui.F_RTSelection..Event(UnLoad,F_RTSelection_UnLoad)
+Gui.F_RTSelection..ContextMenuCreate("ctxDel")
+Gui.F_RTSelection..ContextMenuAddItem("ctxDel","sDelete",0,"Delete")
+Gui.F_RTSelection..ContextMenuSetItemEventHandler("ctxDel","sDelete","cmdRemove_Click")
+Gui.F_RTSelection.txtFrmRt.Create(TextBox,"",True,1500,300,0,210,405,True,0,"Arial",8,-2147483643,1)
+Gui.F_RTSelection.txtToRT.Create(TextBox,"",True,1500,300,0,2460,405,True,0,"Arial",8,-2147483643,1)
+Gui.F_RTSelection.cmdFromRT.Create(Button)
+Gui.F_RTSelection.cmdFromRT.Size(375,375)
+Gui.F_RTSelection.cmdFromRT.Position(1785,375)
+Gui.F_RTSelection.cmdFromRT.Caption("^")
+Gui.F_RTSelection.cmdFromRT.Event(Click,cmdFromRT_Click)
+Gui.F_RTSelection.cmdToRT.Create(Button)
+Gui.F_RTSelection.cmdToRT.Size(375,375)
+Gui.F_RTSelection.cmdToRT.Position(4035,375)
+Gui.F_RTSelection.cmdToRT.Caption("^")
+Gui.F_RTSelection.cmdToRT.Event(Click,cmdToRT_Click)
+Gui.F_RTSelection.cmdAdd.Create(Button)
+Gui.F_RTSelection.cmdAdd.Size(1020,375)
+Gui.F_RTSelection.cmdAdd.Position(3465,900)
+Gui.F_RTSelection.cmdAdd.Caption("Add")
+Gui.F_RTSelection.cmdAdd.Event(Click,cmdAdd_Click)
+Gui.F_RTSelection.cmdCont.Create(Button)
+Gui.F_RTSelection.cmdCont.Size(1005,375)
+Gui.F_RTSelection.cmdCont.Position(3435,4305)
+Gui.F_RTSelection.cmdCont.Caption("OK")
+Gui.F_RTSelection.cmdCont.Event(Click,cmdCont_Click)
+Gui.F_RTSelection.lblF.Create(Label,"From Router:",True,1935,255,0,195,195,True,0,"Arial",8,-2147483633,0)
+Gui.F_RTSelection.lblT.Create(Label,"To Router:",True,1935,255,0,2460,195,True,0,"Arial",8,-2147483633,0)
+Gui.F_RTSelection.ggcRts.Create(GsGridControl)
+Gui.F_RTSelection.ggcRts.Size(4275,2850)
+Gui.F_RTSelection.ggcRts.Position(240,1350)
+Gui.F_RTSelection.ggcRts.contextmenuattach("ctxDel")
+Gui.F_DateRange..Create
+Gui.F_DateRange..Caption("Date Range Selection")
+Gui.F_DateRange..Size(5205,1905)
+Gui.F_DateRange..MinX(0)
+Gui.F_DateRange..MinY(0)
+Gui.F_DateRange..Position(0,0)
+Gui.F_DateRange..BackColor(-2147483633)
+Gui.F_DateRange..MousePointer(0)
+Gui.F_DateRange..Event(UnLoad,F_DateRange_UnLoad)
+Gui.F_DateRange..Sizeable(False)
+Gui.F_DateRange.cmdOK.Create(Button)
+Gui.F_DateRange.cmdOK.Size(1170,375)
+Gui.F_DateRange.cmdOK.Position(3690,840)
+Gui.F_DateRange.cmdOK.Caption("OK")
+Gui.F_DateRange.cmdOK.Event(Click,cmdOK_Click)
+Gui.F_DateRange.dtpFrom.Create(DatePicker)
+Gui.F_DateRange.dtpFrom.Size(1935,285)
+Gui.F_DateRange.dtpFrom.Position(180,405)
+Gui.F_DateRange.dtpTo.Create(DatePicker)
+Gui.F_DateRange.dtpTo.Size(1935,285)
+Gui.F_DateRange.dtpTo.Position(2655,405)
+Gui.F_DateRange.lblFrom.Create(Label,"From:",True,1935,255,0,255,195,True,0,"Arial",8,-2147483633,0)
+Gui.F_DateRange.lblTo.Create(Label,"To:",True,1935,255,0,2745,195,True,0,"Arial",8,-2147483633,0)
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+Program.Sub.Preflight.End
+
+Program.Sub.cmdFromRT_Click.Start
+F.Intrinsic.Control.SetErrorHandler("cmdFromRT_Click_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local..BulkDeclareString(sError, sRet, sTitles)
+V.Local.iWidth.Declare(Long)
+
+F.Intrinsic.String.Split("Router*!*Description", "*!*", V.Local.sTitles)
+F.Intrinsic.String.Split("700*!*900","*!*", v.Local.iWidth)
+'this subroutine will create a browser for Routers for the user to select.
+F.Intrinsic.UI.MiniBrowser("Select Router", "conx", "Select distinct Router, Description_Router from V_ROUTER_HEADER", V.Local.sTitles, V.Local.iWidth, V.Local.sRet)
+F.Intrinsic.Control.If(V.Local.sRet.Trim, <>, "***CANCEL***")
+	F.Intrinsic.String.Split(V.Local.sRet, "*!*", V.Local.sRet)
+	'We can place the router number on both the to and from textboxes
+	Gui.F_RTSelection.txtFrmRt.Text(V.Local.sRet(0))
+	Gui.F_RTSelection.txtToRT.Text(V.Local.sRet(0))
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("cmdFromRT_Click_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4535_RTLaborUPDT.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+Program.Sub.cmdFromRT_Click.End
+
+Program.Sub.cmdToRT_Click.Start
+F.Intrinsic.Control.SetErrorHandler("cmdToRT_Click_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local..BulkDeclareString(sError, sRet, sTitles, sRout)
+V.Local.iWidth.Declare(Long)
+
+F.Intrinsic.String.Split("Router*!*Description", "*!*", V.Local.sTitles)
+F.Intrinsic.String.Split("700*!*900","*!*", v.Local.iWidth)
+
+F.Intrinsic.String.Split(V.Screen.F_RTSelection!txtFrmRt.Text, "-", V.Local.sRout)
+V.Local.sRout.RedimPreserve(0, 1)
+F.Intrinsic.String.Build("Select distinct Router, Description_Router from V_ROUTER_HEADER where Router >= '{0}'", V.Local.sRout(0).Trim, V.Local.sRout)
+'this subroutine will create a browser for Routers for the user to select.
+F.Intrinsic.UI.MiniBrowser("Select Router", "conx", V.Local.sRout, V.Local.sTitles, V.Local.iWidth, V.Local.sRet)
+F.Intrinsic.Control.If(V.Local.sRet.Trim, <>, "***CANCEL***")
+	F.Intrinsic.String.Split(V.Local.sRet, "*!*", V.Local.sRet)
+	'We will only replace the To Router
+	Gui.F_RTSelection.txtToRT.Text(V.Local.sRet(0))
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("cmdToRT_Click_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4535_RTLaborUPDT.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+Program.Sub.cmdToRT_Click.End
+
+Program.Sub.cmdAdd_Click.Start
+F.Intrinsic.Control.SetErrorHandler("cmdAdd_Click_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local..BulkDeclareString(sError, sFrRT, sToRT, sSql)
+
+F.Intrinsic.String.Split(V.Screen.F_RTSelection!txtFrmRt.Text, "*!*", V.Local.sFrRT)
+F.Intrinsic.String.Split(V.Screen.F_RTSelection!txtToRT.Text, "*!*", V.Local.sToRT)
+
+'Here we will add all Routers in the range selected to the list view
+F.Intrinsic.Control.If(V.Local.sFrRT, <>, "", "AND", V.Local.sToRT, <>, "")
+'	F.Intrinsic.String.Build("Select Router + '-' + Router_Suffix as 'Router-Suffix', Router, Router_Suffix as Suffix from V_Router_Header where Router + '-' + Router_Suffix between '{0}' and '{1}'", V.Screen.F_RTSelection!txtFrmRt.Text, V.Screen.F_RTSelection!txtToRT.Text, V.Local.sSql)
+	F.Intrinsic.String.Build("Select Router from V_Router_Header where Router between '{0}' and '{1}'", V.Local.sFrRT.PSQLFriendly, V.Local.sToRT.PSQLFriendly, V.Local.sSql)
+	F.Data.DataTable.CreateFromSQL("Temp", "conx", V.Local.sSql)
+	F.Data.DataTable.Merge("Display", "Temp", True, 2)
+	F.Data.DataView.Create("Temp", "TempView", 22)
+	F.Data.DataTable.Close("Display")
+	F.Data.DataView.ToDataTableDistinct("Temp", "TempView", "Display", "Router", True)
+	F.Data.Datatable.Close("Temp")
+	Gui.F_RTSelection.ggcRts.AddGridviewFromDatatable("Display", "Display")
+'	Gui.F_RTSelection.ggcRts.SetColumnProperty("Display", "Router-Suffix", "Visible", False)
+	Gui.F_RTSelection.ggcRts.MainView("Display")
+F.Intrinsic.Control.EndIf
+
+Gui.F_RTSelection.txtFrmRt.Text("")
+Gui.F_RTSelection.txtToRT.Text("")
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("cmdAdd_Click_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4535_RTLaborUPDT.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(f_rtselection_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.cmdAdd_Click.End
+
+Program.Sub.cmdRemove_Click.Start
+F.Intrinsic.Control.SetErrorHandler("cmdRemove_Click_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local..BulkDeclareString(sPos, sError)
+
+Gui.F_RTSelection.ggcRts.GetSelectedRows("Display", V.Local.sPos)
+F.Intrinsic.Control.If(V.Local.sPos, <>, "")
+	F.Intrinsic.String.Split(V.Local.sPos, "*!*", V.Local.sPos)
+	F.Data.DataTable.DeleteRow("Display", V.Local.sPos(0))
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("cmdRemove_Click_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4535_RTLaborUPDT.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+Program.Sub.cmdRemove_Click.End
+
+Program.Sub.cmdCont_Click.Start
+F.Intrinsic.Control.SetErrorHandler("cmdCont_Click_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+'If there are no routers selected, do no work
+F.Intrinsic.Control.If(V.DataTable.Display.RowCount, =, 0)
+	F.Intrinsic.Control.ExitSub	
+F.Intrinsic.Control.EndIf
+
+'Else hide Router screen and display Date Range screen
+Gui.F_RTSelection..Visible(False)
+Gui.F_DateRange..Show
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("cmdCont_Click_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4535_RTLaborUPDT.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(f_rtselection_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.cmdCont_Click.End
+
+Program.Sub.F_DateRange_UnLoad.Start
+F.Intrinsic.Control.SetErrorHandler("F_DateRange_UnLoad_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+F.Intrinsic.Control.CallSub(F_RTSelection_unload)
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("F_DateRange_UnLoad_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4535_RTLaborUPDT.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(f_rtselection_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.F_DateRange_UnLoad.End
+
+Program.Sub.cmdOK_Click.Start
+F.Intrinsic.Control.SetErrorHandler("cmdOK_Click_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local..BulkDeclareString(sRet, sError)
+V.Local..BulkDeclareDate(dFrom, dTo)
+V.Local.iDiff.Declare(Long)
+
+V.Local.dFrom.Set(V.Screen.F_DateRange!dtpFrom.Value)
+V.Local.dTo.Set(V.Screen.F_DateRange!dtpTo.Value)
+
+Gui.F_DateRange..Visible(False)
+F.Intrinsic.Date.DateDiff("D", V.Local.dFrom, V.Local.dTo, V.Local.iDiff)
+
+F.Intrinsic.Control.If(v.Local.iDiff, <, 0)
+	F.Intrinsic.UI.Msgbox("Starting date is after ending date. Would you like to reverse the dates?", "Date Discrepancy", 1, V.Local.sRet)
+	F.Intrinsic.Control.SelectCase(V.Local.sRet)
+	F.Intrinsic.Control.Case("1")
+		V.Local.dFrom.Set(V.Screen.F_DateRange!dtpTo.Value)
+		V.Local.dTo.Set(V.Screen.F_DateRange!dtpFrom.Value)
+	F.Intrinsic.Control.CaseElse
+		Gui.F_DateRange..Show
+		F.Intrinsic.Control.ExitSub
+	F.Intrinsic.Control.EndSelect
+F.Intrinsic.Control.EndIf
+
+'Build the date range string and send it as a passed variable
+F.Intrinsic.String.Build("Date_Closed between '{0}' and '{1}'", V.Local.dFrom.PervasiveDate, V.Local.dTo.PervasiveDate, V.Local.sRet)
+
+F.Intrinsic.Control.CallSub(AverageCalcs, "sDateRange", V.Local.sRet)
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("cmdOK_Click_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4535_RTLaborUPDT.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(f_rtselection_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.cmdOK_Click.End
+
+Program.Sub.F_RTSelection_UnLoad.Start
+F.Intrinsic.Control.SetErrorHandler("F_RTSelection_UnLoad_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+F.Intrinsic.Control.End
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("F_RTSelection_UnLoad_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4535_RTLaborUPDT.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+Program.Sub.F_RTSelection_UnLoad.End
+
+Program.Sub.Main.Start
+F.Intrinsic.Control.SetErrorHandler("Main_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+F.ODBC.Connection!conx.OpenConnection(V.Ambient.PDSN, V.Ambient.PUser, V.Ambient.PPass, 10000000)
+
+F.Intrinsic.UI.SetBrowserHotTypeAhead(True)
+
+'We create an empty table to use for the gridview before displaying the screen.
+F.Data.Datatable.Create("Display", True)
+F.Data.DataTable.AddColumn("Display", "Router", "String")
+'F.Data.DataTable.AddColumn("Display", "Suffix", "String")
+Gui.F_RTSelection.ggcRts.AddGridviewFromDatatable("Display", "Display")
+Gui.F_RTSelection.ggcRts.MainView("Display")
+
+Gui.F_RTSelection.ggcRts.Anchor(15)
+Gui.F_RTSelection.cmdCont.Anchor(10)
+Gui.F_RTSelection.cmdRemove.Anchor(10)
+
+F.Data.Dictionary.CreateFromSql("Routers", "conx", "Select Router, Router from V_ROUTER_HEADER")
+Gui.F_RTSelection.txtFrmRt.addAutoCompleteItem("Routers", "Dictionary")
+Gui.F_RTSelection.txtToRT.AddAutoCompleteItem("Routers", "Dictionary")
+
+Gui.F_RTSelection..Show
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("Main_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4535_RTLaborUPDT.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(f_rtselection_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.Main.End
+
+Program.Sub.AverageCalcs.Start
+F.Intrinsic.Control.SetErrorHandler("AverageCalcs_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local..BulkDeclareLong(iCount, iIndex)
+V.Local..BulkDeclareString(sSql, sError, sMessage, sRet, sformula, sRouter)
+v.Local..BulkDeclareFloat(fqty,fhistqty)
+
+'Add Wait Dialogue
+F.Intrinsic.UI.InvokeWaitDialog("Calculating Labor", "Updating Router Labor Time")
+
+'Table "Display" will have our distinct Routers to update. We first look at all work orders for that router in the date range and for average out 
+F.Intrinsic.Control.For(V.Local.iCount, 0, V.DataTable.Display.RowCount--, 1)
+	V.Local.sRouter.Set(V.DataTable.Display(V.Local.iCount).Router!FieldValTrim)
+	F.Intrinsic.String.Build("Making calculations and updates for Router {0}.{1}{1}{2} out of {3}.", V.Local.sRouter, V.Ambient.NewLine, V.Local.iCount, V.DataTable.Display.RowCount, V.Local.sMessage)
+	F.Intrinsic.UI.ChangeWaitStatus(V.Local.sMessage, V.Local.iCount, 0, V.DataTable.Display.RowCount)
+		
+	'Work for the Router, every line is a labor sequence for the router
+	F.Intrinsic.String.Build("Select SEQ, SUM(HOURS_WORKED) AS HRS_SUM from V_JOB_DETAIL where JOB + '-' + Suffix IN (SELECT JOB + '-' + Suffix FROM V_JOB_HEADER WHERE PART = '{0}' and  {1}) and LMO = 'L' and SEQ < '900000' and HOURS_WORKED > 0 AND SUFFIX <> '' GROUP BY SEQ", V.Local.sRouter.PSQLFriendly, V.Args.sDateRange, V.Local.sSql)
+	F.Data.DataTable.CreateFromSQL("SeqSumLive", "conx", V.Local.sSql)
+	
+	'Same thing but for History records
+	F.Intrinsic.String.Build("Select SEQ, SUM(HOURS_WORKED) AS HRS_SUM from V_JOB_HIST_DTL where JOB + '-' + Suffix IN (SELECT JOB + '-' + Suffix FROM V_JOB_HIST_MAST WHERE PART = '{0}' and  {1}) and LMO = 'L' and SEQ < '900000' and HOURS_WORKED > 0 AND SUFFIX <> '' GROUP BY SEQ", V.Local.sRouter.PSQLFriendly, V.Args.sDateRange, V.Local.sSql)
+	F.Data.DataTable.CreateFromSQL("SeqSumHist", "conx", V.Local.sSql)	
+		
+'	'sum of the qty from the job header
+	F.Intrinsic.String.Build("Select SUM(QTY_COMPLETED) as QTY from V_JOB_Header where PART = '{0}' AND QTY_COMPLETED = QTY_ORDER and {1}", V.Local.sRouter.PSQLFriendly,v.Args.sdaterange,V.Local.sSql)
+	Function.ODBC.Connection!conx.ExecuteAndReturn(v.Local.ssql,v.Local.sret)
+	'set the qty
+	v.Local.fqty.Set(v.Local.sret)
+	'sum of the qty from the job hist header
+	F.Intrinsic.String.Build("Select SUM(QTY_COMPLETED) as QTY from V_JOB_HIST_MAST where PART = '{0}' AND QTY_COMPLETED = QTY_ORDER and {1}", V.Local.sRouter.PSQLFriendly,v.Args.sdaterange,V.Local.sSql)
+	Function.ODBC.Connection!conx.ExecuteAndReturn(v.Local.ssql,v.Local.sret)	
+	'set the history qty
+	v.Local.fhistqty.Set(v.Local.sret)
+	'combine the two numbers
+	f.Intrinsic.Math.Add(v.Local.fqty,v.Local.fhistqty,v.Local.fqty)
+		
+	F.Data.Dictionary.CreateFromDataTable("Sum", "SeqSumHist", "SEQ", "HRS_SUM")
+	F.Data.DataTable.AddColumn("SeqSumLive", "HistSum", "Float")
+	F.Data.Dictionary.SetDefaultReturn("Sum", 0)
+	F.Data.DataTable.FillFromDictionary("SeqSumLive", "Sum", "SEQ", "HistSum")
+	F.Data.Dictionary.Close("Sum")
+	
+	F.Data.DataTable.AddExpressionColumn("SeqSumLive", "SumTotal", "Float", "[HRS_SUM] + [HISTSUM]")
+	f.Intrinsic.String.Build("[SumTotal]/{0}",v.Local.fqty,v.Local.sformula)
+	F.Data.DataTable.AddExpressionColumn("SeqSumLive", "SeqAvgTTL", "Float", v.Local.sformula)	
+
+	'The data Table SeqSumLive now has the average of all labor sequences
+	F.Intrinsic.Control.If(V.DataTable.SeqSumLive.RowCount, >, 0)
+		F.Intrinsic.Control.For(V.Local.iIndex, 0, V.DataTable.SeqSumLive.RowCount--, 1)
+			F.Intrinsic.Control.If(V.DataTable.SeqSumLive(V.Local.iIndex).SeqAvgTTL!FieldValFloat, <>, 0,"AND",V.DataTable.SeqSumLive(V.Local.iIndex).SeqAvgTTL!FieldValString,<>,"Infinity")
+				F.Intrinsic.String.Build("Update Router_Line set Run_Time = '{0}' where Router = '{1}' and LMO = 'L' and Line_Router = '{2}'",  V.DataTable.SeqSumLive(V.Local.iIndex).SeqAvgTTL!FieldValFloat, V.Local.sRouter,  V.DataTable.SeqSumLive(V.Local.iIndex).SEQ!FieldValTrim, V.Local.sSql)
+				F.ODBC.Connection!conx.Execute(V.Local.sSql)			
+			F.Intrinsic.Control.EndIf
+		F.Intrinsic.Control.Next(V.Local.iIndex)
+	F.Intrinsic.Control.EndIf
+	F.Data.DataTable.Close("SeqSumLive")
+	F.Data.DataTable.Close("SeqSumHist")
+F.Intrinsic.Control.Next(V.Local.iCount)
+
+F.Intrinsic.UI.Msgbox("Router Labor Time Update Completed", "Routers Updated")
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("AverageCalcs_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4535_RTLaborUPDT.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(f_rtselection_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.AverageCalcs.End
+
+Program.Sub.Comments.Start
+${$0$}$$}$$}$12:00:00 AM$}$False
+Program.Sub.Comments.End
